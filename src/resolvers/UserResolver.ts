@@ -32,4 +32,11 @@ export class UserResolver {
         return User.find();
     }
 
+    @Query(() => User)
+    user(
+        @Arg("userNo",()=>Int) userNo:number
+    ){  
+        return User.findOne(userNo);
+    }
+
 }
