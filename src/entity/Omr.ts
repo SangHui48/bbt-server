@@ -6,6 +6,10 @@ import {Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, BaseEntity} fr
 export class Omr extends BaseEntity{
     
     @Field()
+    @PrimaryGeneratedColumn()
+    omrId!: number;
+
+    @Field()
     @Column()
     questionNo!: number;
 
