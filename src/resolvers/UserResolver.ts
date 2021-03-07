@@ -1,4 +1,4 @@
-import { Arg, Field, InputType, Int, Mutation, Query, Resolver } from "type-graphql";
+import { Arg, Field, InputType, Mutation, Query, Resolver } from "type-graphql";
 import { User } from "../entity/User";
 
 @InputType()
@@ -21,15 +21,17 @@ export class UserResolver {
     @Mutation(() => User)
     async createUser(
        @Arg("variables", () => UserInput) variables: UserInput
-    ){
+    ){  
+        const check = await User.findOne({id: variables.id});
+        if(check) throw new Error('id is already in use');
         const newUser = User.create(variables);
-        console.log(newUser);
         return await newUser.save();
+        
     }
 
     @Query(() => [User])
     users(){
-        return User.find();
+        return User.find(); 
     }
 
     @Query(() => User)
