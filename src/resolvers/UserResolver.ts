@@ -1,6 +1,8 @@
 import { Arg, Field, InputType, Mutation, Query, Resolver } from "type-graphql";
 import { User } from "../entity/User";
 
+const bcrypt = require('bcrypt')
+
 @InputType()
 class UserInput {
     
@@ -24,9 +26,11 @@ export class UserResolver {
     ){  
         const check = await User.findOne({id: variables.id});
         if(check) throw new Error('id is already in use');
-        const newUser = User.create(variables);
+        const hashedPassword = await bcrypt.hash(variables.pw, 10);
+        const data = variables;
+        data.pw = hashedPassword;
+        const newUser = User.create(data);
         return await newUser.save();
-        
     }
 
     @Query(() => [User])
