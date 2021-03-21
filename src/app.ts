@@ -1,5 +1,5 @@
 import express from "express";
-import {ApolloServer} from "apollo-server-express";
+import {ApolloServer, AuthenticationError} from "apollo-server-express";
 import {buildSchema} from "type-graphql"
 import { UserResolver } from "./resolvers/UserResolver";
 
@@ -12,7 +12,18 @@ export async function startServer(){
             resolvers: [UserResolver],
             validate: false
         }),
-        context: ({req, res}) => ({req, res})
+        context: ({req, res}) => {
+
+            const token =req.headers.authorization || '';
+            
+            // const user = getUser(token);
+
+            // if(!user) throw new AuthenticationError('you must be login');
+
+            // return {user};
+            
+            return {req, res}
+        }
     });
 
     server.applyMiddleware({app, path: '/graphql'});

@@ -17,6 +17,15 @@ class UserInput {
 
 }
 
+@InputType()
+class login {
+    @Field(() => String)
+    id!:string;
+
+    @Field(() => String)
+    pw!: string;
+}
+
 @Resolver()
 export class UserResolver {
 
