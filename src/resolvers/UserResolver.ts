@@ -1,7 +1,6 @@
 import { Arg, Field, InputType, Mutation, Query, Resolver } from "type-graphql";
 import { User } from "../entity/User";
-
-const bcrypt = require('bcrypt')
+import bcrypt, { compare, hash } from "bcrypt";
 
 @InputType()
 class UserInput {
@@ -17,6 +16,15 @@ class UserInput {
 
 }
 
+@InputType()
+class login {
+    @Field(() => String)
+    id!:string;
+
+    @Field(() => String)
+    pw!:string;
+}
+
 @Resolver()
 export class UserResolver {
 
@@ -26,7 +34,7 @@ export class UserResolver {
     ){  
         const check = await User.findOne({id: variables.id});
         if(check) throw new Error('id is already in use');
-        const hashedPassword = await bcrypt.hash(variables.pw, 10);
+        const hashedPassword = await hash(variables.pw, 10);
         const data = variables;
         data.pw = hashedPassword;
         const newUser = User.create(data);
@@ -45,19 +53,19 @@ export class UserResolver {
         return User.findOne({id:id});
     }   
 
-    @Mutation(() =>Boolean)
-    async login( @Arg('data') data: UserInput ): Promise<Boolean> {
+    @Mutation(() =>User)
+    async login( @Arg('data') data: login ): Promise<User> {
         const { id, pw } = data;
         const user = await User.findOne({ where: { id } });
         if (!user) {
             throw new Error(`The user with id: ${id} does not exist!`);
         }
         // 비밀번호 확인
-        const valid = await bcrypt.compare(pw,user.pw);
+        const valid = await compare(pw,user.pw);
         if (!valid) {
             throw new Error(`Password not mached!`);
         }
         // accessToken 발급
-        return true;
+        return user;
     }
 }
