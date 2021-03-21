@@ -29,4 +29,12 @@ export class User extends BaseEntity{
     @CreateDateColumn({type:'timestamp'})
     changeDate!: string;
 
+    @Field(() => String)
+    @Column()
+    role!: string;
+
+    @Field(() => String)
+    @Column()
+    token!: string;
+
 }

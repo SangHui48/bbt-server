@@ -1,6 +1,6 @@
 import { Arg, Field, InputType, Mutation, Query, Resolver } from "type-graphql";
 import { User } from "../entity/User";
-import bcrypt, { compare, hash } from "bcrypt";
+import { compare, hash } from "bcrypt";
 
 @InputType()
 class UserInput {
@@ -53,19 +53,22 @@ export class UserResolver {
         return User.findOne({id:id});
     }   
 
-    @Mutation(() =>User)
-    async login( @Arg('data') data: login ): Promise<User> {
-        const { id, pw } = data;
-        const user = await User.findOne({ where: { id } });
-        if (!user) {
-            throw new Error(`The user with id: ${id} does not exist!`);
-        }
-        // 비밀번호 확인
-        const valid = await compare(pw,user.pw);
-        if (!valid) {
-            throw new Error(`Password not mached!`);
-        }
-        // accessToken 발급
-        return user;
+    @Query(() =>Boolean)
+    async login( @Arg('data', () => login) data:login): Promise<Boolean> {
+        
+            const user = await User.findOne({ id: data.id });
+            if (!user) {
+                throw new Error(`The user with id: ${data.id} does not exist!`);
+                return false;
+            }
+            // 비밀번호 확인
+            const valid = await compare(data.pw, user.pw);
+            if (!valid) {
+                throw new Error(`Password not mached!`);
+                return false;
+            }
+            // accessToken 발급
+            return true;
+        
     }
 }
